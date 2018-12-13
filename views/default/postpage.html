@@ -1,0 +1,114 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script>
+    //Post URLS
+    var add_post_url = "{{=URL('api', 'add_post', user_signature=True)}}";
+    var get_single_post_url = "{{=URL('api', 'get_single_post')}}";
+    var add_question_url = "{{=URL('api', 'add_question', user_signature=True)}}";
+    var get_question_list_url = "{{=URL('api', 'get_question_list', user_signature=True)}}";
+    var add_answer_url = "{{=URL('api', 'add_answer', user_signature=True)}}";
+    var add_offer_url = "{{=URL('api', 'add_offer', user_signature=True)}}";
+
+    var is_logged_in = {{='false' if auth.user is None else 'true'}};
+
+    var user_email;
+    {{=ASSIGNJS(user_email=auth.user.email if auth.user is not None else None)}}
+    console.log(user_email)
+</script>
+{{end}}
+
+<div class="main_content">
+    <div id="vue-div" class="display:none">
+        <div class="redirect_page" >
+            <!-- Message in case there are no posts. -->
+            <div v-if="post_list.length === 0">There are no posts.</div>
+                <!-- We display the posts. -->
+                <div id="post_list">
+                    <div class="postpage_div" v-for="post in post_list" style="margin-left:5%; margin-right:5%;">
+                        <div>
+                            <div class="post_title" style="font-weight: bold;font-size:30px;">
+                                ${post.post_title} - $${post.post_price}
+                                <button v-on:click="show_add_offer =!show_add_offer" v-show="user_email != post.post_author" style="float:right;"  data-toggle="collapse" data-target="#collapseExample1" aria-expanded="false" aria-controls="collapseExample1">Make Offer</button>
+                            </div>
+                            <!-- make offers -->
+                                <div class="collapse" id="collapseExample1" style="float:right;padding-right:2vw;">
+                                    <button id="add-offer"  v-on:click="show_add_offer=!show_add_offer;add_offer(post.id)">Submit</button>
+ 
+                                    <div  style="position:absolute;">
+                                        <input v-model="form_offer" placeholder="Enter the offer value" >
+                                    </div>
+                                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        </div>
+                        <img style= "max-width: 75%;height: auto;  display: block; margin-left: auto; margin-right: auto;" v-bind:src="post.post_image"/>
+                        <div class="post_city" style="font-size:20px; padding: 0vw 0vw .5vw 0vw;">Located in - ${post.post_city}</div>
+                        <div class="post_description" style="padding: 0vw 0vw .5vw 0vw;">${post.post_description}</div>
+                        <div class="attributes"></div>
+
+                        <!--show questions -->
+                        <button v-if="question_list.length > 0"  data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample"v-on:click="console.log(question_list); get_questions(post.id); show_questions = !show_questions;">See Questions</button>
+                            <div class="collapse" id="collapseExample"   style="border: 1px solid black;">
+                                <div class="questions" v-for="question in question_list">
+                                    <div class="question_question" style="padding: 1vw"><b>Question:</b> ${question.question}</div>
+                                    <div v-show="question.answer != ''"class="question_answer" style="background-color: #E9E9E9;padding:1vw;box-shadow: 0px 0px 8px #888888;"><b>Answer:</b> ${question.answer}</div>
+                                    <div v-show="question.answer == ''"  style="background-color: #E9E9E9;padding:1vw;box-shadow: 0px 0px 8px #888888;">No one has answered this question yet.</div>
+                                </div>
+                            </div>
+                            <button id="show-questions" v-show="show_questions == true" v-on:click="show_submit_question = !show_submit_question">Add Question?</button>
+                                <div v-show="show_submit_question" id="add_question">
+                                    <div class="container form_row">
+                                        <div class="label quarter">
+                                            Question:
+                                        </div>
+                                        <div class="form threequarters">
+                                            <input v-model="form_question" placeholder="Enter the question"/>
+                                        </div>
+                                    </div> 
+                                    <div class="container form_row"><div class="quarter"></div>
+                                        <div class="threequarters">
+                                            <div class="submit">
+                                                <button id="add-question" v-on:click="add_question(post.id);show_submit_question = !show_submit_question; get_questions(post.id) ">Submit</button>
+                                            </div>
+                                        </div> 
+                                    </div>
+                                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{=URL('static', 'js/default_postpage.js')}}"></script>

@@ -1,0 +1,100 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script>
+    //Post URLS
+    var add_post_url = "{{=URL('api', 'add_post', user_signature=True)}}";
+    var get_post_list_url = "{{=URL('api', 'get_post_list')}}";
+    var push_post_id_url = "{{=URL('api', 'push_post_id')}}";
+
+    var redirect_url = "{{=URL('default','mylogin')}}";
+
+    var is_logged_in = {{='false' if auth.user is None else 'true'}};
+</script>
+{{end}}
+
+<div class="main_content">
+  <div id="vue-div" class="display:none">
+    <!--This is the Main Page HTML code 
+      ####################################################################-->
+    <div class="main_page">
+      <div style="padding: 0vw 0vw 1.5vw 0vw;">
+
+        <button v-on:click="get_posts(search_input, 'search')" style="font-size:18px;float:right;position: relative;z-index: 1;margin-top:2px;margin-left:1vw;">Submit</button>
+        <div class="form third" style="float:right;">
+          <input type="text" style="border: 2px solid #000000;border-radius: 4px;font-size: 16px;background-color: white;position: relative;z-index: 2;" v-model = "search_input" placeholder="Search">
+        </div>
+
+        <div class="dropdown">
+          <button v-on:click="showMenu = !showMenu;" class="dropbtn" style="font-size:18px;">Order by:</button>
+          <div v-show="showMenu == true" class="dropdown-content" style= "display: block;position: absolute;background-color: #f9f9f9;min-width: 160px;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);padding: 12px 16px;z-index: 1;">
+            <button v-on:click="get_posts('newest', 'order'); showMenu = false;">Filter by newest</button>
+            <button v-on:click="get_posts('oldest', 'order'); showMenu = false;">Filter by oldest</button>
+            <button v-on:click="get_posts('cheapest', 'order'); showMenu = false;">Filter by price($->$$$)</button>
+            <button v-on:click="get_posts('expensive', 'order'); showMenu = false;">Filter by price($$$->$)</button>
+          </div>
+         
+        </div>
+      </div>
+
+
+      <!-- Message in case there are no posts. -->
+
+
+      <div v-if="post_list.length === 0">There are no posts.</div>
+        <!-- We display the posts. -->
+        <div class="containers">
+          <div class= "third compressible" v-for="post in post_list">
+          <div class = "float-up" >
+          <div v-if="is_logged_in" v-on:click=push_post_id(post.id);window.location="{{=URL('default','postpage')}}";>
+            <div class="card" style="border:none;">
+              <div>
+                <div class="post_div" style="height:18vw; cursor:pointer;padding-top:.5vw;">
+                  <div class="post_title" style="display:inline;vertical-align:top;text-align:left;padding-left:1vw;"><b>${post.post_title}</b></div>
+                  <div class="post_price" style="display:inline;vertical-align:top; float:right; padding-right:1vw;">${post.post_price}</div>
+                  <img style="height:10vw; max-width:100%; display: block; margin:0 auto; margin-top:3vw; overflow:auto;" v-bind:src="post.post_image"/>
+                </div>
+                <div class="post_div" style="height:18vw; cursor:pointer;">  
+                    <div class="post_description" style="text-align:center;">${post.post_description}</div>
+                    <div class="post_city" style="text-align:center;">${post.post_city}</div>
+                    <div class="attributes"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          
+
+          <div class = "float-up" >
+              <div v-if="!is_logged_in" v-on:click=window.location="{{=URL('default','mylogin')}}"; >
+                <div class="card" style="border:none;">
+                  <div>
+                    <div class="post_div" style="height:18vw; cursor:pointer;padding-top:.5vw;">
+                      <div class="post_title" style="display:inline;vertical-align:top;text-align:left;padding-left:1vw;"><b>${post.post_title}</b></div>
+                      <div class="post_price" style="display:inline;vertical-align:top; float:right; padding-right:1vw;">${post.post_price}</div>
+                      <img style="height:10vw; max-width:100%; display: block; margin:0 auto; margin-top:3vw; overflow:auto;" v-bind:src="post.post_image"/>
+                    </div>
+                    <div class="post_div" style="height:18vw; cursor:pointer;">  
+                        <div class="post_description" style="text-align:center;">${post.post_description}</div>
+                        <div class="post_city" style="text-align:center;">${post.post_city}</div>
+                        <div class="attributes"></div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              </div>
+              <div style="padding:9.5vw;"></div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

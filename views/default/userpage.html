@@ -1,0 +1,243 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script>
+    //Post URLS
+    var add_post_url = "{{=URL('api', 'add_post', user_signature=True)}}";
+    var get_user_post_list_url = "{{=URL('api', 'get_user_post_list')}}";
+    var delete_post_url = "{{=URL('api', 'delete_post')}}";
+    var get_question_list_url = "{{=URL('api', 'get_question_list', user_signature=True)}}";
+    var add_answer_url = "{{=URL('api', 'add_answer', user_signature=True)}}";
+    var update_post_url = "{{=URL('api', 'update_post', user_signature=True)}}";   
+    var get_offer_list_url = "{{=URL('api', 'get_offer_list', user_signature=True)}}";  
+
+    var is_logged_in = {{='false' if auth.user is None else 'true'}};
+    var show_form = false
+
+    var user_email;
+    {{=ASSIGNJS(user_email=auth.user.email if auth.user is not None else None)}}
+    console.log(user_email)
+
+</script>
+{{end}}
+
+<div class="main_content">
+    <div id="vue-div" class="display:none">
+        
+        <!--- This is the user's page 
+        ####################################################################-->
+        <div class="collapse" id="collapseExample1">
+        <div class="user_page" style="background-color: #eeeeee; border: 2px black solid;">
+            <p>This is the user page</p>
+            <div id="add_post" style="display:none">
+                <div class="container form_row">
+                    <div class="label quarter">
+                        Title:
+                    </div>
+                    <div class="form threequarters">
+                        <input v-model="form_title" placeholder="Enter the post title"/>
+                    </div>
+                </div>
+                <div class="container form_row">
+                    <div class="label quarter">
+                        Description:
+                    </div>
+                    <div class="form threequarters">
+                        <textarea v-model="form_description" placeholder="Enter the description"></textarea>
+                    </div>
+                </div>
+                
+                <div class="container form_row">
+                    <div class="label quarter">
+                        Category:
+                    </div>
+                    <div class="form threequarters">
+                        <input v-model="form_category" placeholder="Enter the category"/>
+                    </div>
+                </div>
+                
+                
+                <div class="container form_row">
+                    <div class="label quarter">
+                        Price:
+                    </div>
+                    <div class="form threequarters">
+                        <input v-model="form_price" placeholder="Enter the price"/>
+                    </div>
+                </div>
+
+                <div class="container form_row">
+                    <div class="label quarter">
+                        City:
+                    </div>
+                    <div class="form threequarters">
+                        <input v-model="form_city" placeholder="Enter the city"/>
+                    </div>
+                </div>
+
+                <div class="container form_row">
+                    <div class="label quarter">
+                        Image:
+                    </div>
+                    <div class="form threequarters">
+                        <input id="file_input" type="file" v-on:change="upload_file" placeholder="Pick an image" accept="image/jpeg"/>
+                    </div>
+                </div>
+                        
+                <div class="container form_row"><div class="quarter"></div>
+                    <div class="threequarters">
+                        <div class="submit">
+                            <button id="add-post" v-on:click="add_post">Submit</button>
+                        </div>
+                    </div>
+                </div>
+                <div>                
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div id="toggler" v-if="is_logged_in">
+            <div class="toggle_button">
+                <button id="toggle_post"  data-toggle="collapse" data-target="#collapseExample1" aria-expanded="false" aria-controls="collapseExample1">Click Here to Add a Post</button>
+            </div>
+        </div>
+
+        <p>My Listings</p>
+
+        <div v-if="user_post_list.length === 0">There are no posts.</div>
+        <!-- We display the posts. -->
+        <div id="user_post_list">
+          <div class = "float-up">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <div class="postpage_div" v-for="post in user_post_list">
+              <!--<img width="200" height="200" v-bind:src="post.post_image"/> -->
+            <div class="containers">
+
+            <div class = "third">
+              <img v-show="post._edit_post == true && post.clicked_applied == false && form_image" style="height:10vw; max-width:100%; display: block;" v-bind:src = "form_image"/>
+
+              <!-- put stuff for editing images -->
+
+              <img style="height:10vw; max-width:100%; overflow:auto;" v-bind:src="post.post_image"/>
+
+              <div  v-show="post._edit_post == false" class="post_title"><b>Title:</b> ${post.post_title}</div>
+              <input v-show="post._edit_post == true" 
+                            v-model="post.post_title">
+              <div v-show="post._edit_post == false" class="post_description"><b>Description:</b> ${post.post_description}</div>
+              <input v-show="post._edit_post == true" 
+                            v-model="post.post_description">
+              <div  v-show="post._edit_post == false" class="post_price"><b>Price:</b> ${post.post_price}</div>
+              <input v-show="post._edit_post == true" 
+                            v-model="post.post_price">
+              <div v-show="post._edit_post == false" class="post_city"><b>Location:</b> ${post.post_city}</div>
+              <input v-show="post._edit_post == true" 
+                            v-model="post.post_city">
+                            
+              <div class="attributes"></div>
+
+            <!--- Edit and Apply buttons -->
+                <div v-if="post.post_author == user_email">
+                <button v-show="post._edit_post==false" v-on:click="post._edit_post=true;post.clicked_applied=false;">
+                    <i v-show="post._edit_post==false" class="fa fa-pencil-square-o">Edit</i> 
+                </button>
+                <button v-show="post._edit_post==true " v-on:click="post._edit_post=false;update_post(post._idx); post.clicked_applied=true;">
+                    <i class="fa fa-check">Apply</i>
+                </button>
+                </div>
+
+              <!--show questions -->
+              <button id="delete-post" v-on:click='delete_post(post.id,post._idx)'>Delete Post</button>
+            </div>
+
+
+
+
+
+
+
+
+            <div class="third">     
+                <button v-show="post.offer_list.length > 0 && post._edit_post==false" style=" float: right; position: relative;" class="offer_button" v-on:click="post.offer_click = !post.offer_click;console.log(post.clicked_offer);">
+                Offers Available<i class="fa fa-angle-down"></i></button>
+                    <div v-show="post.offer_click == true" style="padding-top:2.5vw;width:100%;">
+                        <div class ="offers" v-for="offer in post.offer_list">
+                            ${offer.user} has offered you ${offer.price}. If you find this offer acceptable, please email them at <a href ="mailto: ${offer.email}">${offer.email}</a>
+                        </div>
+                    </div>
+             </div>
+
+            <div class="third">                 
+                <button style="vertical-align:top;width:100%;" v-show="post._edit_post==false" v-on:click="post.question_click = !post.question_click;">Show Questions</button> 
+                
+                <div class="form threequarters">
+                <input v-show="post._edit_post == true" id="file_input" type="file" v-on:change="upload_file" placeholder="Pick an image" accept="image/jpeg">
+                </div>
+
+                <div v-show="post.question_click==true">
+                    <div v-if="post.question_list.length === 0"> There are no questions.</div>
+                    <div class="questions" v-for="question in post.question_list">
+                        <div class="question_question" >${question.question}</div>
+                        <div class="question_answer">${question.answer}</div>
+
+                        <!-- Toggle button for show add reply -->
+                        <button v-show="question.answer == ''" v-on:click="question._show_add_reply= !question._show_add_reply; console.log(question._show_add_reply)">Add Answer?</button>
+                        <div v-show="question._show_add_reply==true">  
+                            <div class="container form_row">
+                                <div class="label quarter">
+                                    Add Answer:
+                                </div>
+                                <div class="form threequarters">
+                                    <textarea v-model="form_answer" placeholder="Enter the content of your answer"></textarea>
+                                </div>
+                            </div>
+                            <div class="container form_row"><div class="quarter"></div>
+                                <div class="threequarters">
+                                    <div class="submit">
+                                        <button id="add-answer" v-on:click="add_answer(post._idx,question._idx)">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<script src="{{=URL('static', 'js/default_userpage.js')}}"></script>
